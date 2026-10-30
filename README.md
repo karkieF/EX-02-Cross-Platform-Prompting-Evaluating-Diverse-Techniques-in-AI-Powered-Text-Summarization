@@ -276,11 +276,101 @@ LABEL
 
 ---
 
-## 13. Result
+## 13. Evaluation of the Prompts
+
+Each stage was judged on six criteria. The scores below are a self-assessment out of 5 and are meant to compare the stages with each other, not to be exact measurements.
+
+| Criteria | Stage 1 Basic | Stage 2 Role | Stage 3 Context | Stage 4 Constraint | Stage 5 Output Format |
+| --- | --- | --- | --- | --- | --- |
+| Accuracy of facts | 2 | 4 | 4 | 5 | 5 |
+| Relevance to the user | 1 | 2 | 5 | 5 | 5 |
+| Clarity for a normal shopper | 3 | 2 | 3 | 5 | 5 |
+| Control of length | 1 | 1 | 1 | 5 | 5 |
+| Consistency across runs | 1 | 2 | 2 | 3 | 5 |
+| Ready for use in an app | 1 | 1 | 2 | 3 | 5 |
+| **Total (out of 30)** | **9** | **12** | **17** | **26** | **30** |
+
+**Reading the table:** The biggest jump in relevance comes from the context layer, the biggest jump in length control comes from the constraint layer, and the biggest jump in consistency and app-readiness comes from the output format layer. This shows that each layer has its own job and none of them can replace another.
+
+---
+
+## 14. Testing the Final Prompt with Different Labels
+
+A prompt should work on more than one input. The final prompt was planned to be tested on these three types of labels.
+
+| Test case | Input type | What the prompt should do |
+| --- | --- | --- |
+| Test 1 | A healthy product (for example plain rolled oats with only one ingredient) | Give the verdict "Good", show an empty or short additive table, and not invent any warning |
+| Test 2 | A very short label with only two or three lines | Use only the given facts and write "not on label" for missing values |
+| Test 3 | A label with many E-numbers and a high sugar content | Explain every additive in the table, flag the sugar value and keep the answer within 80 words |
+
+**Pass condition for every test:** the answer follows the format exactly, stays within the word limit, uses only facts present on the label and gives no medical advice.
+
+---
+
+## 15. Common Mistakes in Prompt Writing and How to Fix Them
+
+| Mistake | Example | Fix |
+| --- | --- | --- |
+| Too vague | "Tell me about this label" | State the task, the audience and the goal |
+| No limits | "Explain in detail" | Give a word limit and a language level |
+| Role without context | "You are an expert" | Name the expertise and describe the user |
+| Contradicting rules | "Be very short" and "explain everything in detail" | Keep only the rules that are really needed and make them agree |
+| Mixed input and instructions | Label text pasted in the middle of the rules | Put the input at the end under its own heading |
+| No format for an app | Free text where a program needs fields | Define the fields or use JSON |
+| Trusting the output blindly | Using the answer without checking | Verify important facts against the source |
+
+---
+
+## 16. Other Prompting Techniques (For Further Study)
+
+The five structures in this assignment are the base. The following techniques can be added on top of them.
+
+- **Few-shot prompting:** One or two solved examples are placed in the prompt so the model copies their style and format. Example: a filled output for one noodle label before the real label.
+- **Step-by-step (chain of thought) prompting:** The model is asked to work through the problem in steps before giving the final answer. This helps in tasks with calculations, such as converting sodium per 100 g into sodium per pack.
+- **Negative prompting:** The prompt states clearly what must not appear, such as "do not use the words toxic or poison".
+- **Iterative refinement:** The first answer is reviewed and a follow-up prompt asks for a specific change, such as "make it shorter" or "add the allergen line".
+- **Structured data output (JSON):** The answer is requested as machine-readable data so that the app can use each field directly.
+
+**Example of a JSON version of the output format for the Food Decoder app:**
+
+```
+Return only valid JSON in this shape and nothing else:
+{
+  "verdict": "Good | Okay sometimes | Limit",
+  "key_facts": ["fact 1", "fact 2", "fact 3"],
+  "additives": [
+    {"code": "E621", "name": "Monosodium glutamate", "purpose": "Flavour enhancer"}
+  ],
+  "allergens": "text or none",
+  "tip": "one short sentence"
+}
+```
+
+---
+
+## 17. Use in the Food Decoder Project
+
+The final prompt can be placed in the Food Decoder app as a fixed template. The steps are:
+
+1. The user scans or types the ingredient and nutrition text of a product.
+2. The app inserts that text into the LABEL part of the final prompt.
+3. The prompt is sent to the AI model and the answer comes back in the fixed format.
+4. The app shows the verdict as a colour badge, the additives as a table and the tip as a small note.
+5. The user always sees a message that the result is for information only and the original label should be checked for allergens.
+
+**Possible improvements in the future:**
+
+- Add the age or health preference of the user as a new line in the CONTEXT part.
+- Ask for the answer in the regional language of the user, such as Tamil or Hindi, by adding one constraint line.
+- Add a comparison prompt that takes two labels and returns which product is the better choice.
+
+---
+
+## 18. Result
 
 Five prompt structures, namely Basic, Role, Context, Constraint and Output Format, were designed and tested on a sample food label for the Food Decoder application. The Basic prompt gave a short and vague answer, while the Role prompt improved it by adding expert terms such as E621 and E150d. The Context prompt made the answer suit a teenager buying a snack, and the Constraint prompt kept it short, simple and limited to facts on the label. The Output Format prompt produced a fixed layout with a verdict, key facts, an additive table, an allergen line and a tip, which an app can display directly. Hence, the final prompt that combines role, context, constraints and output format gave the most accurate, consistent and reusable result.
 
-## 14. Conclusion
+## 19. Conclusion
 
 A basic prompt leaves the model to guess the expertise, the reader, the limits and the layout. Adding a role, context, constraints and an output format one by one turned a vague two-line answer into a short, reliable, structured response that suits the Food Decoder app. A good prompt is built in layers, and each layer should be tested against the same input to see what it really improves.
-
